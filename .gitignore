@@ -1,0 +1,10 @@
+main
+phonebook.txt
+phonebookNew.txt
+temp.txt
+tempp.txt
+
+.vscode/
+
+*.o
+*.a
