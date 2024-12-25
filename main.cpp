@@ -1,170 +1,39 @@
 #include <iostream>
-#include <fstream>
-#include <string>
-
-using namespace std;
-
-void addNumber();
-void expropriateNumber();
-void deleteNumber(string phoneNumber);
+#include "PhoneBook.h"
 
 int main() {
+    PhoneBook phoneBook("phonebook.txt");
     int choice;
 
     do {
-        cout << "1. Add Number\n";
-        cout << "2. Expropriate Number\n";
-        cout << "3. Exit\n";
-        cout << "Enter your choice: ";
-        cin >> choice;
+        std::cout << "1. Add Number\n";
+        std::cout << "2. Expropriate Number\n";
+        std::cout << "3. Exit\n";
+        std::cout << "Enter your choice: ";
+        std::cin >> choice;
 
         switch (choice) {
-            case 1:
-                addNumber();
+            case 1: {
+                std::string phoneNumber, nationalCode;
+                std::cout << "Enter phone number: ";
+                std::cin >> phoneNumber;
+                std::cout << "Enter national code: ";
+                std::cin >> nationalCode;
+                if (phoneBook.addNumber(phoneNumber, nationalCode)) {
+                    std::cout << "Number added successfully.\n";
+                }
                 break;
+            }
             case 2:
-                expropriateNumber();
+                phoneBook.expropriateNumber();
                 break;
             case 3:
-                cout << "Exiting program.\n";
+                std::cout << "Exiting program.\n";
                 break;
             default:
-                cout << "Invalid choice. Please try again.\n";
+                std::cout << "Invalid choice. Please try again.\n";
         }
-    } while (choice != 4);
+    } while (choice != 3);
 
     return 0;
-}
-
-void addNumber() {
-    ofstream outFile("phonebook.txt", ios::app);
-
-    if (!outFile) {
-        cerr << "Error opening file for writing.\n";
-        return;
-    }
-
-    string phoneNumber, nationalCode;
-    int status = 1; // Automatically set status to 1
-
-    cout << "Enter phone number: ";
-    cin >> phoneNumber;
-
-    // Check if the phone number already exists
-    ifstream inFile("phonebook.txt");
-    string line;
-    while (getline(inFile, line)) {
-        string storedPhoneNumber = line.substr(0, line.find(' '));
-        int storedStatus = stoi(line.substr(line.find(' ') + 1));
-
-        if (storedPhoneNumber == phoneNumber && storedStatus == 1) {
-            cout << "Error: Phone number already exists with status 1.\n";
-            inFile.close();
-            outFile.close();
-            return;
-        }
-        else if (storedPhoneNumber == phoneNumber && storedStatus == 0){
-            inFile.close();
-            outFile.close();
-            deleteNumber(phoneNumber);
-            ofstream outFile("phonebook.txt", ios::app);
-            ifstream inFile("phonebook.txt");
-        }
-    }
-
-    cout << "Enter national code: ";
-    cin >> nationalCode;
-
-    inFile.close();
-
-    // Status is automatically set to 1
-    outFile << phoneNumber << " " << status << " ";
-
-
-
-    outFile << nationalCode << endl;
-    cout << "Number added successfully.\n";
-
-    outFile.close();
-}
-
-void expropriateNumber() {
-    ifstream inFile("phonebook.txt");
-    ofstream tempFile("temp.txt");
-
-    if (!inFile || !tempFile) {
-        cerr << "Error opening file for reading or writing.\n";
-        return;
-    }
-
-    string userPhoneNumber;
-    string phoneNumber, status, nationalCode;
-    bool found = false;
-
-    cout << "Enter phone number to expropriate: ";
-    cin >> userPhoneNumber;
-
-    while (inFile >> phoneNumber >> status >> nationalCode) {
-        if (phoneNumber == userPhoneNumber) {
-            found = true;
-            tempFile << phoneNumber << " 0 null\n";
-            cout << "Number expropriated successfully.\n";
-            break;
-        } else {
-            cout << "Error: Phone number not found.\n";
-            tempFile.close();
-            remove("temp.txt");
-            return;
-        }
-    }
-
-    if (!found) {
-        cout << "Error: Phone number not found.\n";
-    }
-
-    // Copy the rest of the file to the temp file
-    while (inFile >> phoneNumber >> status >> nationalCode) {
-        tempFile << phoneNumber << " " << status << " " << nationalCode << endl;
-    }
-
-    inFile.close();
-    tempFile.close();
-
-    // Remove the original file and rename the temp file
-    //remove("phonebook.txt");
-    rename("temp.txt", "phonebookNew.txt");
-}
-
-void deleteNumber(string phoneNumber) {
-    ifstream inFile("phonebook.txt");
-    ofstream tempFile("tempp.txt");
-
-    if (!inFile || !tempFile) {
-        cerr << "Error opening file for reading or writing.\n";
-        return;
-    }
-
-    string currentPhoneNumber, status, nationalCode;
-    bool found = false;
-
-    while (inFile >> currentPhoneNumber >> status >> nationalCode) {
-        if (phoneNumber == currentPhoneNumber) {
-            found = true;
-            cout << "Number deleted successfully.\n";
-            continue; // Skip writing the deleted number to tempFile
-        } else {
-            tempFile << currentPhoneNumber << " " << status << " " << nationalCode << endl;
-        }
-    }
-
-    if (!found) {
-        cout << "Error: Phone number not found.\n";
-    }
-
-    inFile.close();
-    tempFile.close();
-
-    // Remove the original file and rename the temp file
-    remove("phonebook.txt");
-    rename("tempp.txt", "phonebook.txt");
 }
